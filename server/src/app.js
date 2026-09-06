@@ -15,6 +15,9 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
+// Render terminates the public connection and forwards the client IP header.
+app.set('trust proxy', 1);
+
 app.use(helmet({
   crossOriginResourcePolicy: false,
   contentSecurityPolicy: {
