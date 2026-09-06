@@ -7,20 +7,21 @@ const env = require('../config/env');
 const { signJwt } = require('../services/authService');
 
 const router = express.Router();
+const crossSiteCookies = env.clientUrl.startsWith('https://');
 
 router.get('/google', (req, res, next) => {
   const requestedRole = req.query.role === 'ADMIN' ? 'ADMIN' : 'VIEWER';
 
   res.clearCookie('jwt', {
     httpOnly: true,
-    secure: env.nodeEnv === 'production',
-    sameSite: env.nodeEnv === 'production' ? 'none' : 'lax',
+    secure: crossSiteCookies,
+    sameSite: crossSiteCookies ? 'none' : 'lax',
   });
 
   res.cookie('oauth_role', requestedRole, {
     httpOnly: true,
-    secure: env.nodeEnv === 'production',
-    sameSite: env.nodeEnv === 'production' ? 'none' : 'lax',
+    secure: crossSiteCookies,
+    sameSite: crossSiteCookies ? 'none' : 'lax',
     maxAge: 10 * 60 * 1000,
   });
 
@@ -57,8 +58,8 @@ router.get('/google/callback', (req, res, next) => {
       const token = signJwt(user);
       res.cookie('jwt', token, {
         httpOnly: true,
-        secure: env.nodeEnv === 'production',
-        sameSite: env.nodeEnv === 'production' ? 'none' : 'lax',
+        secure: crossSiteCookies,
+        sameSite: crossSiteCookies ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
@@ -88,8 +89,8 @@ router.get('/me', authenticate, async (req, res) => {
 router.post('/logout', (req, res) => {
   res.clearCookie('jwt', {
     httpOnly: true,
-    secure: env.nodeEnv === 'production',
-    sameSite: env.nodeEnv === 'production' ? 'none' : 'lax',
+    secure: crossSiteCookies,
+    sameSite: crossSiteCookies ? 'none' : 'lax',
   });
 
   return sendSuccess(res, { loggedOut: true });
