@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  VIEWER
+}
+
+enum ContentType {
+  VIDEO
+  PDF
+  HTML
+}
+
+model User {
+  id        String   @id @default(cuid())
+  googleId  String   @unique
+  name      String
+  email     String   @unique
+  avatarUrl String?
+  role      Role     @default(VIEWER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  uploads Content[]
+}
+
+model Content {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  type        ContentType
+  category    String
+  storageKey  String
+  fileName    String
+  mimeType    String
+  fileSize    Int
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  createdById String
+
+  createdBy User @relation(fields: [createdById], references: [id])
+}
+
+model ContentView {
+  id        String   @id @default(cuid())
+  userId    String
+  contentId String
+  viewedAt  DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  contentId String?
+  createdAt DateTime @default(now())
+}
