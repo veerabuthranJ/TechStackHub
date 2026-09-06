@@ -14,6 +14,11 @@ export default function LoginPage() {
       window.history.replaceState({}, document.title, '/login');
     }
 
+    if (loginError === 'google_auth_failed') {
+      setError('Google sign-in could not be completed. Please try again. If it continues, check the backend deployment logs.');
+      window.history.replaceState({}, document.title, '/login');
+    }
+
   }, []);
 
   const handleGoogleLogin = () => {

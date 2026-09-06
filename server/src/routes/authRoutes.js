@@ -33,13 +33,23 @@ router.get('/google', (req, res, next) => {
 router.get('/google/callback', (req, res, next) => {
   passport.authenticate('google', async (err, user) => {
     if (err || !user) {
+      if (err) {
+        console.error('Google OAuth callback failed:', {
+          code: err.code,
+          message: err.message,
+          name: err.name,
+        });
+      } else {
+        console.error('Google OAuth callback returned no user.');
+      }
+
       res.clearCookie('oauth_role');
 
       if (err?.code === 'ADMIN_NOT_ALLOWED') {
         return res.redirect(`${env.clientUrl}/login?error=admin_not_allowed`);
       }
 
-      return sendError(res, 'Google authentication failed.', 401);
+      return res.redirect(`${env.clientUrl}/login?error=google_auth_failed`);
     }
 
     try {
